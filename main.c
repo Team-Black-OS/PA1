@@ -33,7 +33,7 @@ int main() {
 
 
     clear(root);
-
+    root = NULL;
 
     return 0;
 }
