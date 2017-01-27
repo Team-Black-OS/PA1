@@ -12,11 +12,13 @@ struct tnode{
 
 void insert(struct tnode**, char[100]);
 void print(struct tnode*);
+void clear(struct tnode*);
 
 int main() {
     // Pointer for root of our tree
     struct tnode* root = NULL;
 
+    char tmp[50] = "Hello";
     // insert nodes insert(&root, "string")
     insert(&root, "Programming");
     insert(&root, "Test");
@@ -24,10 +26,14 @@ int main() {
     insert(&root, "In");
     insert(&root, "C");
     insert(&root, "Is");
-    insert(&root, "Programming");
+    insert(&root, tmp);
 
     // PRINT TREE
     print(root);
+
+
+    clear(root);
+
 
     return 0;
 }
@@ -105,3 +111,21 @@ void print(struct tnode* root){
     }
 }// end print
 
+//-------------------------------------------------------
+// CLEAR FUNCTION
+// Precondition: root is passed in
+// Postcondition: All memory allocated by tree is cleared
+// Returns: Nothing
+//------------------------------------------------------------
+void clear(struct tnode* root){
+    // calls recursively if there is a left child
+    if (root->lChild != NULL){
+        clear(root->lChild);
+    }
+    // calls recursively if there is a right child
+    if (root->rChild != NULL){
+        clear(root->rChild);
+    }
+    // if all children have been freed, then free node
+    free(root);
+}// end clear
