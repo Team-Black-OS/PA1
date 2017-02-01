@@ -12,7 +12,7 @@ struct tnode{
 
 void insert(struct tnode**, char[RAYSIZE]);
 void print(struct tnode*);
-void clear(struct tnode*);
+void clearTree(struct tnode*);
 
 int main() {
     // Pointer for root of our tree
@@ -34,7 +34,7 @@ int main() {
     print(root);
 
 
-    clear(root);
+    clearTree(root);
     root = NULL;
 
     return 0;
@@ -119,14 +119,14 @@ void print(struct tnode* root){
 // Postcondition: All memory allocated by tree is cleared
 // Returns: Nothing
 //------------------------------------------------------------
-void clear(struct tnode* root){
+void clearTree(struct tnode* root){
     // calls recursively if there is a left child
     if (root->lChild != NULL){
-        clear(root->lChild);
+        clearTree(root->lChild);
     }
     // calls recursively if there is a right child
     if (root->rChild != NULL){
-        clear(root->rChild);
+        clearTree(root->rChild);
     }
     // if all children have been freed, then free node
     free(root);
