@@ -1,16 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#define RAYSIZE 100
 //forward declarations
 struct tnode{
-    char strName[100];
+    char strName[RAYSIZE];
     int strQty;
     struct tnode* lChild;
     struct tnode* rChild;
 };
 
-void insert(struct tnode**, char[100]);
+void insert(struct tnode**, char[RAYSIZE]);
 void print(struct tnode*);
 void clear(struct tnode*);
 
@@ -19,14 +19,16 @@ int main() {
     struct tnode* root = NULL;
 
     char tmp[50] = "Hello";
+    char* tmp2 = "Programming";
     // insert nodes insert(&root, "string")
     insert(&root, "Programming");
     insert(&root, "Test");
-    insert(&root, "Quiz");
+    insert(&root, "Test");
     insert(&root, "In");
     insert(&root, "C");
     insert(&root, "Is");
     insert(&root, tmp);
+    insert(&root, tmp2);
 
     // PRINT TREE
     print(root);
@@ -44,10 +46,10 @@ int main() {
 // Postcondition: String is inserted into tree or incremented if it already exists
 // Returns: Nothing.
 //-----------------------------------
-void insert(struct tnode** root, char Str1[100]){
+void insert(struct tnode** root, char Str1[RAYSIZE]){
     //checks to see if tree is empty, if so sticks str1 as the root
     if (*root == NULL){
-        struct tnode* tempNode = malloc(sizeof(struct tnode));
+        struct tnode* tempNode = (struct tnode*) malloc(sizeof(struct tnode));
         strcpy(tempNode->strName, Str1);
         tempNode->strQty = 1;
         tempNode->lChild = NULL;
@@ -78,7 +80,7 @@ void insert(struct tnode** root, char Str1[100]){
     }
         //when loop breaks new node will attach to previous node
         //creates a new node
-        struct tnode* tempNode = malloc(sizeof(struct tnode));
+        struct tnode* tempNode = (struct tnode*) malloc(sizeof(struct tnode));
         strcpy(tempNode->strName, Str1);
         tempNode->strQty = 1;
         tempNode->lChild = NULL;
