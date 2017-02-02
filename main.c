@@ -2,8 +2,18 @@
 #include <stdlib.h>
 #include <string.h>
 #define RAYSIZE 100
+
+
+
+// TODO make char dynamic
+typedef struct char_vector {
+    char* data; //
+    uint limit; // Total size of the vector
+    uint current; //Number of vectors in it at present
+} char_vec;
+
 //forward declarations
-struct tnode{
+struct tnode {
     char strName[RAYSIZE];
     int strQty;
     struct tnode* lChild;
@@ -13,31 +23,44 @@ struct tnode{
 void insert(struct tnode**, char[RAYSIZE]);
 void print(struct tnode*);
 void clearTree(struct tnode*);
+void readin(FILE *f, struct tnode** root);
+
 
 int main() {
+    // assigning a FILE ptr to the txt file
+    FILE *fptr = fopen("string.txt", "r");
+    
     // Pointer for root of our tree
     struct tnode* root = NULL;
-
-    char tmp[50] = "Hello";
-    char* tmp2 = "Programming";
-    // insert nodes insert(&root, "string")
-    insert(&root, "Programming");
-    insert(&root, "Test");
-    insert(&root, "Test");
-    insert(&root, "In");
-    insert(&root, "C");
-    insert(&root, "Is");
-    insert(&root, tmp);
-    insert(&root, tmp2);
-
+    
+    // Stdin our words into the tree
+    readin(fptr, &root);
+    
     // PRINT TREE
     print(root);
-
-
-    clearTree(root);
+    
+    //clearTree(root);
     root = NULL;
-
+    
     return 0;
+}
+
+//--------------------------------
+// READIN FUNCTION
+// Precondition: Address of root and file to be read from
+// Postcondition: EOF has been reached an words have been inserted
+// Returns: Nothing.
+//--------------------------------
+void readin(FILE *f, struct tnode** root) {
+    // Assumption word will not be longer than 256 characters long.
+    char word[RAYSIZE];
+    
+    // Reads a string. This will stop on the first whitespace character reached or at 100 characters.
+    while (fscanf(f, "%100s", word) == 1)
+    {
+        puts(word);
+        insert(root, word);
+    }
 }
 
 //-------------------------------
@@ -60,38 +83,38 @@ void insert(struct tnode** root, char Str1[RAYSIZE]){
     //if tree is not empty find where it goes
     struct tnode* previous = NULL;//tracks previous nodes
     struct tnode* current = *root;//tracks current nodes
-
+    
     while(current != NULL) {
         // if string is already in tree increments the quantity of that string and leaves function
         if (strcmp(Str1, current->strName) == 0) {
             current->strQty += 1;
             return;
         }
-            // if passed in string is less than current string go left
+        // if passed in string is less than current string go left
         else if (strcmp(Str1, current->strName) < 0) {
             previous = current;
             current = current->lChild;
         }
-            //if string is larger it goes right
+        //if string is larger it goes right
         else {
             previous = current;
             current = current->rChild;
         }
     }
-        //when loop breaks new node will attach to previous node
-        //creates a new node
-        struct tnode* tempNode = (struct tnode*) malloc(sizeof(struct tnode));
-        strcpy(tempNode->strName, Str1);
-        tempNode->strQty = 1;
-        tempNode->lChild = NULL;
-        tempNode->rChild = NULL;
-        //figures out if new node connects to left or right and sticks it in there
-        if (strcmp(Str1, previous->strName) < 0){
-            previous->lChild = tempNode;
-        }
-        else{
-            previous->rChild = tempNode;
-        }
+    //when loop breaks new node will attach to previous node
+    //creates a new node
+    struct tnode* tempNode = (struct tnode*) malloc(sizeof(struct tnode));
+    strcpy(tempNode->strName, Str1);
+    tempNode->strQty = 1;
+    tempNode->lChild = NULL;
+    tempNode->rChild = NULL;
+    //figures out if new node connects to left or right and sticks it in there
+    if (strcmp(Str1, previous->strName) < 0){
+        previous->lChild = tempNode;
+    }
+    else{
+        previous->rChild = tempNode;
+    }
 }//end insert
 
 //---------------------------------------------------------
