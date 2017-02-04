@@ -4,13 +4,9 @@
 #define RAYSIZE 100
 
 
-
 // TODO make char dynamic
-typedef struct char_vector {
-    char* data; //
-    uint limit; // Total size of the vector
-    uint current; //Number of vectors in it at present
-} char_vec;
+
+typedef unsigned int uint;           // added by Grant, not sure why I need this but I do..
 
 //forward declarations
 struct tnode {
@@ -21,14 +17,32 @@ struct tnode {
 };
 
 void insert(struct tnode**, char[RAYSIZE]);
-void print(struct tnode*);
+void print(FILE *f, struct tnode*);
 void clearTree(struct tnode*);
 void readin(FILE *f, struct tnode** root);
 
 
-int main() {
-    // assigning a FILE ptr to the txt file
-    FILE *fptr = fopen("string.txt", "r");
+int main(int args, char** argv) {
+    
+    /*
+     * Go to Run > Edit Configs >
+     * in the program arguments field past in the full path of the
+     * string.txt file with double quotes around it,
+     * that should be all you need to do
+     */
+    
+    char* filePath;
+    filePath = argv[1];
+    printf("%s", filePath);
+    
+    FILE *fptr = fopen(filePath,"r");      // input file
+    
+    FILE *outfptr = fopen("output", "a");  // output file
+    
+    if (fptr == NULL) {
+        perror("Error opening file: ");
+        return 1;
+    }
     
     // Pointer for root of our tree
     struct tnode* root = NULL;
@@ -36,19 +50,26 @@ int main() {
     // Stdin our words into the tree
     readin(fptr, &root);
     
-    // PRINT TREE
-    print(root);
+    // Create output file
+    //FILE *fopen( const char * filename, "w");
     
-    //clearTree(root);
+    // PRINT TREE
+    print(outfptr, root);
+    
+    clearTree(root);
     root = NULL;
     
+    // closing input and output files
+    fclose(fptr);
+    fclose(outfptr);
+    
     return 0;
-}
+} // end main
 
 //--------------------------------
 // READIN FUNCTION
 // Precondition: Address of root and file to be read from
-// Postcondition: EOF has been reached an words have been inserted
+// Postcondition: EOF has been reached and words have been inserted
 // Returns: Nothing.
 //--------------------------------
 void readin(FILE *f, struct tnode** root) {
@@ -56,7 +77,7 @@ void readin(FILE *f, struct tnode** root) {
     char word[RAYSIZE];
     
     // Reads a string. This will stop on the first whitespace character reached or at 100 characters.
-    while (fscanf(f, "%100s", word) == 1)
+    while (fscanf(f, "%99s", word) == 1)
     {
         puts(word);
         insert(root, word);
@@ -123,16 +144,40 @@ void insert(struct tnode** root, char Str1[RAYSIZE]){
 // Postcondition: Prints out tree in order including qty of each word
 // Returns: Nothing
 //----------------------------------------------------------------
-void print(struct tnode* root){
+void print(FILE *f, struct tnode* root){
     //if there is a left child call print recursively
     if (root->lChild != NULL){
-        print(root->lChild);
+        print(f, root->lChild);
     }
     // print out value since no left children left
     printf("%s : %d\n",root->strName, root->strQty);
+    
+    
+    /*
+     * Writing counts to file
+     */
+    char count [RAYSIZE];
+    sprintf(count, "%d", root->strQty);
+    
+    char* stringForOutFile = malloc(strlen(root->strName) + strlen(count) + 3); // + 3 for /n and null terminators, 1 from each word after count caster to a char*
+    
+    strcpy(stringForOutFile, root->strName);
+    strcat(stringForOutFile, " : ");
+    strcat(stringForOutFile, count);
+    strcat(stringForOutFile, "\n");
+    
+    fputs(stringForOutFile, f);
+    
+    free(stringForOutFile);
+    /*
+     *
+     */
+    
+    
+    
     // if there is a right child call print recursively
     if (root->rChild != NULL){
-        print(root->rChild);
+        print(f, root->rChild);
     }
 }// end print
 
