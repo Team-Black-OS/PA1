@@ -7,18 +7,19 @@ typedef unsigned int uint;           // added by Grant, not sure why I need this
 
 //forward declarations
 typedef struct tnode {
-    char strName[RAYSIZE];
+    char *strName;
     int strQty;
     struct tnode* lChild;
     struct tnode* rChild;
 } tnode;
-
-void insert(tnode**, char[RAYSIZE]);
+void insert(tnode**, char*);
 void print(FILE *f, tnode*);
 void clearTree( tnode*);
 void readin(FILE *f, tnode** root);
 
-
+//---------------------------
+// MAIN
+//----------------------------
 int main(int args, char** argv) {
     /*
      * Go to Run > Edit Configs >
@@ -28,26 +29,21 @@ int main(int args, char** argv) {
      */
     char* filePath;
     filePath = argv[1];
-    printf("%s", filePath);
     FILE *fptr = fopen(filePath,"r");      // input file
-    FILE *outfptr = fopen("output.txt", "a");  // output file
-
+    FILE *outfptr = fopen("output.txt", "w+");  // output file
     if (fptr == NULL) {
         perror("Error opening file: ");
         return 1;
     }
-
     // Pointer for root of our tree
     tnode* root = NULL;
     // Stdin our words into the tree
     readin(fptr, &root);
-
     // PRINT TREE
     print(outfptr, root);
     //Free dynamic memory
     clearTree(root);
     root = NULL;
-
     // closing input and output files
     fclose(fptr);
     fclose(outfptr);
@@ -79,10 +75,11 @@ void readin(FILE *f, tnode** root) {
 // Postcondition: String is inserted into tree or incremented if it already exists
 // Returns: Nothing.
 //-----------------------------------
-void insert(struct tnode** root, char Str1[RAYSIZE]){
+void insert(struct tnode** root, char* Str1){
     //checks to see if tree is empty, if so sticks str1 as the root
     if (*root == NULL){
         struct tnode* tempNode = (tnode*) malloc(sizeof(tnode));
+        tempNode->strName = (char*) malloc(strlen(Str1) * sizeof(char));
         strcpy(tempNode->strName, Str1);
         tempNode->strQty = 1;
         tempNode->lChild = NULL;
@@ -93,7 +90,6 @@ void insert(struct tnode** root, char Str1[RAYSIZE]){
     //if tree is not empty find where it goes
     tnode* previous = NULL;//tracks previous nodes
     tnode* current = *root;//tracks current nodes
-
     while(current != NULL) {
         // if string is already in tree increments the quantity of that string and leaves function
         if (strcmp(Str1, current->strName) == 0) {
@@ -114,6 +110,7 @@ void insert(struct tnode** root, char Str1[RAYSIZE]){
     //when loop breaks new node will attach to previous node
     //creates a new node
     tnode* tempNode = (tnode*) malloc(sizeof(tnode));
+    tempNode->strName = (char*) malloc(strlen(Str1) * sizeof(char));
     strcpy(tempNode->strName, Str1);
     tempNode->strQty = 1;
     tempNode->lChild = NULL;
@@ -140,29 +137,18 @@ void print(FILE *f,tnode* root){
     }
     // print out value since no left children left
     printf("%s : %d\n",root->strName, root->strQty);
-
-
     /*
      * Writing counts to file
      */
     char count [RAYSIZE];
     sprintf(count, "%d", root->strQty);
     char* stringForOutFile = malloc(strlen(root->strName) + strlen(count) + 4); // + 4 for /n and null terminators, 1 from each word after count caster to a char*
-
     strcpy(stringForOutFile, root->strName);
     strcat(stringForOutFile, " : ");
     strcat(stringForOutFile, count);
     strcat(stringForOutFile, "\n");
-
     fputs(stringForOutFile, f);
-
     free(stringForOutFile);
-    /*
-     *
-     */
-
-
-
     // if there is a right child call print recursively
     if (root->rChild != NULL){
         print(f, root->rChild);
@@ -185,5 +171,6 @@ void clearTree(tnode* root){
         clearTree(root->rChild);
     }
     // if all children have been freed, then free node
+    free(root->strName);
     free(root);
 }// end clear
